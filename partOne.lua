@@ -1,4 +1,3 @@
---[[
 # Neural Networks Demystified
 # Part 1: Data + Architecture
 #
@@ -6,25 +5,13 @@
 #
 # Stephen Welch
 # @stephencwelch
-# Torch version by Alessio Salman
---]]
 
-th = require 'torch'
-bestScore = 100
+import numpy as np
 
--- X = (hours sleeping, hours studying), y = Score on test
-torch.setdefaulttensortype('torch.FloatTensor')
-X = th.Tensor({{3,5}, {5,1}, {10,2}})
-y = th.Tensor({{75},{82},{93}})
+# X = (hours sleeping, hours studying), y = Score on test
+X = np.array(([3,5], [5,1], [10,2]), dtype=float)
+y = np.array(([75], [82], [93]), dtype=float)
 
---normalize
-normalizeTensorAlongDim(2,X)
-y = y/bestScore
-
---bad written, just a way to normalize divide every column for its max value
-function normalizeTensorAlongCols(tensor)
-    local cols = tensor:size()[2]
-    for i=1,cols do
-      tensor[{ {},i }]:div(tensor:max(1)[1][i])
-    end
-end
+# Normalize
+X = X/np.amax(X, axis=0)
+y = y/100 #Max test score is 100

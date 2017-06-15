@@ -32,7 +32,7 @@ normalizeTensorAlongCols(X)
 y = y/bestScore
 
 
------------------------ Part 4 ----------------------------
+----------------------- Part 5 ----------------------------
 --creating class NN in Lua, using a nice class utility
 require 'class'
 
@@ -45,65 +45,64 @@ Neural_Network = class(function(net, inputs, hiddens, outputs)
                  net.W2 = th.randn(net.hiddenLayerSize, net.outputLayerSize)
                end)
 
---define a forward method
-function Neural_Network:forward(X)
-  --Propagate inputs though network
-  self.z2 = th.mm(X, self.W1)
-  self.a2 = th.sigmoid(self.z2)
-  self.z3 = th.mm(self.a2, self.W2)
-  yHat = th.sigmoid(self.z3)
-  return yHat
-end
+    --define a forward method
+    function Neural_Network:forward(X)
+      --Propagate inputs though network
+      self.z2 = th.mm(X, self.W1)
+      self.a2 = th.sigmoid(self.z2)
+      self.z3 = th.mm(self.a2, self.W2)
+      yHat = th.sigmoid(self.z3)
+      return yHat
+    end
 
-function Neural_Network:sigmoidPrime(z)
-  --Gradient of sigmoid
-  return th.exp(-z):cdiv( (th.pow( (1+th.exp(-z)),2) ) )
-end
+    function Neural_Network:sigmoidPrime(z)
+      --Gradient of sigmoid
+      return th.exp(-z):cdiv( (th.pow( (1+th.exp(-z)),2) ) )
+    end
 
-function Neural_Network:costFunction(X, y)
- --Compute the cost for given X,y, use weights already stored in class
- self.yHat = self:forward(X)
- --NB torch.sum() isn't equivalent to python sum() built-in method
- --However, for 2D arrays whose one dimension is 1, it won't make any difference
- J = 0.5 * th.sum(th.pow((y-yHat),2))
- return J
-end
+    function Neural_Network:costFunction(X, y)
+    --Compute the cost for given X,y, use weights already stored in class
+    self.yHat = self:forward(X)
+    --NB torch.sum() isn't equivalent to python sum() built-in method
+    --However, for 2D arrays whose one dimension is 1, it won't make any difference
+    J = 0.5 * th.sum(th.pow((y-yHat),2))
+    return J
+    end
 
-function Neural_Network:costFunctionPrime(X, y)
- --Compute derivative wrt to W and W2 for a given X and y
- self.yHat = self:forward(X)
- delta3 = th.cmul(-(y-self.yHat), self:sigmoidPrime(self.z3))
- dJdW2 = th.mm(self.a2:t(), delta3)
+    function Neural_Network:costFunctionPrime(X, y)
+    --Compute derivative wrt to W and W2 for a given X and y
+    self.yHat = self:forward(X)
+    delta3 = th.cmul(-(y-self.yHat), self:sigmoidPrime(self.z3))
+    dJdW2 = th.mm(self.a2:t(), delta3)
 
- delta2 = th.mm(delta3, self.W2:t()):cmul(self:sigmoidPrime(self.z2))
- dJdW1 = th.mm(X:t(), delta2)
+    delta2 = th.mm(delta3, self.W2:t()):cmul(self:sigmoidPrime(self.z2))
+    dJdW1 = th.mm(X:t(), delta2)
 
- return dJdW1, dJdW2
-end
+    return dJdW1, dJdW2
+    end
 
---
---
---Helper Functions for interacting with other classes:
-function Neural_Network:getParams()
-  --Get W1 and W2 unrolled into a vector
-  params = th.cat((self.W1:view(self.W1:nElement())), (self.W2:view(self.W2:nElement())))
-  return params
-end
 
-function Neural_Network:setParams(params)
-  --Set W1 and W2 using single paramater vector.
-  W1_start = 1 --index starts at 1 in Lua
-  W1_end = self.hiddenLayerSize * self.inputLayerSize
-  self.W1 = th.reshape(params[{ {W1_start, W1_end} }], self.inputLayerSize, self.hiddenLayerSize)
+    --Helper Functions for interacting with other classes:
+    function Neural_Network:getParams()
+      --Get W1 and W2 unrolled into a vector
+      params = th.cat((self.W1:view(self.W1:nElement())), (self.W2:view(self.W2:nElement())))
+      return params
+    end
 
-  W2_end = W1_end + self.hiddenLayerSize*self.outputLayerSize
-  self.W2 = th.reshape(params[{ {W1_end+1, W2_end} }], self.hiddenLayerSize, self.outputLayerSize)
-end
+    function Neural_Network:setParams(params)
+      --Set W1 and W2 using single paramater vector.
+      W1_start = 1 --index starts at 1 in Lua
+      W1_end = self.hiddenLayerSize * self.inputLayerSize
+      self.W1 = th.reshape(params[{ {W1_start, W1_end} }], self.inputLayerSize, self.hiddenLayerSize)
 
-function Neural_Network:computeGradients(X, y)
-  dJdW1, dJdW2 = self:costFunctionPrime(X, y)
-  return th.cat((dJdW1:view(dJdW1:nElement())), (dJdW2:view(dJdW2:nElement())))
-end
+      W2_end = W1_end + self.hiddenLayerSize*self.outputLayerSize
+      self.W2 = th.reshape(params[{ {W1_end+1, W2_end} }], self.hiddenLayerSize, self.outputLayerSize)
+    end
+
+    function Neural_Network:computeGradients(X, y)
+      dJdW1, dJdW2 = self:costFunctionPrime(X, y)
+      return th.cat((dJdW1:view(dJdW1:nElement())), (dJdW2:view(dJdW2:nElement())))
+    end
 
 
 function computeNumericalGradient(NN, X, y)
