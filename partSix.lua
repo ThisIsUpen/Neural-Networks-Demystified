@@ -1,5 +1,5 @@
-
-rks Demystified
+--[[
+Neural Networks Demystified
 # Part 6: Training
 #
 # Supporting code for short YouTube series on artificial neural networks.
@@ -154,13 +154,9 @@ Trainer = class(function(tr, NN)
 
 function Trainer:train(X, y)
     --variables to keep track of the training
-    timer = th.Timer()
-    neval = 0
-    logger = optim.Logger('accuracy.log')
-  --  logger:setNames{'cost', 'iterations'} --, 'time'}
+    --timer = th.Timer()
+    local neval = 0
 
-    inputRows = X:size()[1]
-    inputCols = X:size()[2]
     params0 = self.N:getParams()
   -- create closure to evaluate f(X) and df/dX
     local feval = function(params0)
@@ -172,11 +168,14 @@ function Trainer:train(X, y)
 
       return f, df_dx
     end
-
-    for i=1,opt.maxIter do
-      newparams,_,_ = optimMethod(feval, params0, optimState)
-      self.N:setParams(newparams)
+    
+    if optimMethod == optim.cg then 
+	    newparams,_,_ = optimMethod(feval, params0, optimState) 
+    else 
+     for i=1,opt.maxIter do
+       newparams,_,_ = optimMethod(feval, params0, optimState)
+       self.N:setParams(newparams)
+     end
     end
 end
-
 

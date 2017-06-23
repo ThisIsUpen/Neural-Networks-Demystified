@@ -39,13 +39,12 @@ end
 local neval = 0
 logger = optim.Logger('dummy_accuracy.log')
 
-
 local feval = function(x)
   local f = J(x)
   local df_dx = dJ_dx(x)
   neval = neval + 1
   print(string.format('after %d evaluations J(x) = %f', neval, f))
-  logger:add{f, neval}  --,timer:time().real}
+  logger:add{neval, f}  --,timer:time().real}
 
   return f,df_dx
 end
@@ -56,8 +55,11 @@ config = {
   --weightDecay = 0.1
 }
 
+
+optim.cg(feval, x0, {maxIter = 100})
+--[[
 for i=1,100 do
   optim.sgd(feval, x0, config)
 end
-
+--]]
 print('Optimization done.')
