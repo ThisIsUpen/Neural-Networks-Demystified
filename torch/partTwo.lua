@@ -13,16 +13,18 @@
 th = require 'torch'
 bestScore = 100
 
---bad written, just a way to normalize divide every column for its max value
+--bad written, I think this isn't the proper way to do it in Torch'
+--Just a way to normalize, dividing every column for its max value
+--equivalent to : X = X/np.amax(X, axis=0) with Numpy
 function normalizeTensorAlongCols(tensor)
-    local cols = tensor:size()[2]
-    for i=1,cols do
+   local cols = tensor:size()[2]
+   for i=1,cols do
       tensor[{ {},i }]:div(tensor:max(1)[1][i])
-    end
+   end
 end
 
 -- X = (hours sleeping, hours studying), y = Score on test
-torch.setdefaulttensortype('torch.FloatTensor')
+torch.setdefaulttensortype('torch.DoubleTensor')
 X = th.Tensor({{3,5}, {5,1}, {10,2}})
 y = th.Tensor({{75},{82},{93}})
 
@@ -30,19 +32,20 @@ y = th.Tensor({{75},{82},{93}})
 normalizeTensorAlongCols(X)
 y = y/bestScore
 
-
 ----------------------- Part 2 ----------------------------
 --creating class NN in Lua, using a nice class utility
 require 'class'
 
 --init NN
 Neural_Network = class(function(net, inputs, hiddens, outputs)
-                  net.inputLayerSize = inputs
-                  net.hiddenLayerSize = hiddens
-                  net.outputLayerSize = outputs
-                  net.W1 = th.randn(net.inputLayerSize, net.hiddenLayerSize)
-                  net.W2 = th.randn(net.hiddenLayerSize, net.outputLayerSize)
-                end)
+      net.inputLayerSize = inputs
+      net.hiddenLayerSize = hiddens
+      net.outputLayerSize = outputs
+      net.W1 = th.randn(net.inputLayerSize, net.hiddenLayerSize)
+      net.W2 = th.randn(net.hiddenLayerSize, net.outputLayerSize)
+   end)
+
+--Note: I didn't implement manually the sigmoid function as Torch has one built-in.
 
 --define a forward method
 function Neural_Network:forward(X)
@@ -54,8 +57,3 @@ function Neural_Network:forward(X)
    return yHat
 end
 
---[[Notes:
-    numpy.dot == torch.mm
-    the sigmoid function must not be implemented manually
-    because torch already has one built-in
---]]
