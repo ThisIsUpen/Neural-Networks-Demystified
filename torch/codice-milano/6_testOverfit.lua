@@ -28,17 +28,19 @@ y = y/bestProfit
 
 
 ----------------------- Part 5 ----------------------------
---creating class NN in Lua, using a nice class utility
-require 'class'
+--creating class NN in Lua, using a torch class
+local class = require 'class'
 
 --init NN
-Neural_Network = class(function(net, inputs, hiddens, outputs)
-      net.inputLayerSize = inputs
-      net.hiddenLayerSize = hiddens
-      net.outputLayerSize = outputs
-      net.W1 = th.randn(net.inputLayerSize, net.hiddenLayerSize)
-      net.W2 = th.randn(net.hiddenLayerSize, net.outputLayerSize)
-   end)
+Neural_Network = class('Neural_Network')
+
+function Neural_Network:__init(inputs, hiddens, outputs)
+      self.inputLayerSize = inputs
+      self.hiddenLayerSize = hiddens
+      self.outputLayerSize = outputs
+      self.W1 = th.randn(self.inputLayerSize, self.hiddenLayerSize)
+      self.W2 = th.randn(self.hiddenLayerSize, self.outputLayerSize)
+end
 
 --define a forward method
 function Neural_Network:forward(X)
@@ -130,10 +132,12 @@ end
 optim = require 'optim'
 require 'helper'
 
-Trainer = class(function(tr, NN)
-      --Make Local reference to network:
-      tr.N = NN
-   end)
+--define a trainer class 
+Trainer = class('Trainer')
+function Trainer:__init(NN)
+  --Make Local reference to network:
+  self.N = NN
+end
 
 function Trainer:train(X, y)
    --variables to keep track of the training
@@ -180,10 +184,10 @@ overfitting with a pretty simple but effective technique
 
 ---------------------------------------------------------------------------
 --Training data
-X = th.Tensor({{22,42}, {25,38}, {30,40}, {60, 45} })
-y = th.Tensor({{2.8},{3.4},{4.4}, {2.1} })
+trainX = th.Tensor({ {22, 42}, {25, 38}, {30, 40}, {60, 45} })
+trainY = th.Tensor({ {2.8},{3.4},{4.4}, {2.1} })
 --Testing Data:
-testX = th.Tensor({ {20, 35}, {27, 39}, {40,20}, {33, 41} })
+testX = th.Tensor({ {20, 35}, {27, 39}, {40, 20}, {33, 41} })
 testY = th.Tensor({ {2.6}, {3.8}, {1.8}, {5.1} })
 
 --normalize
@@ -193,10 +197,10 @@ trainY = trainY/bestProfit
 testY = testY/bestProfit
 
 --Need to modify trainer class a bit to check testing error during training:
-Trainer = class(function(tr, NN)
-      --Make Local reference to network:
-      tr.N = NN
-   end)
+function Trainer:__init(NN)
+  --Make Local reference to network:
+  self.N = NN
+end
 
 function Trainer:train(trainX, trainY, testX, testY)
    --variables to keep track of the training
@@ -254,16 +258,16 @@ higher values of Lambda --> bigger penalties for high model complexity
 
 --so, the new Neural_Network class now becomes:
 
-Neural_Network = class(function(net, inputs, hiddens, outputs, lambda)
-      net.inputLayerSize = inputs
-      net.hiddenLayerSize = hiddens
-      net.outputLayerSize = outputs
-      net.W1 = th.randn(net.inputLayerSize, net.hiddenLayerSize)
-      net.W2 = th.randn(net.hiddenLayerSize, net.outputLayerSize)
-
-      --regularization parameter
-      net.lambda = lambda
-   end)
+function Neural_Network:__init(inputs, hiddens, outputs)
+      self.inputLayerSize = inputs
+      self.hiddenLayerSize = hiddens
+      self.outputLayerSize = outputs
+      self.W1 = th.randn(self.inputLayerSize, self.hiddenLayerSize)
+      self.W2 = th.randn(self.hiddenLayerSize, self.outputLayerSize)
+	  
+	  --regularization parameter
+      self.lambda = lambda  
+end
 
 --define a forward method
 function Neural_Network:forward(X)

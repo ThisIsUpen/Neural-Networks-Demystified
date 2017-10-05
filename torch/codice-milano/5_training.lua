@@ -27,17 +27,19 @@ normalizeTensorAlongCols(X)
 y = y/bestProfit
 
 ----------------------- Part 4 ----------------------------
---creating class NN in Lua, using a nice class utility
-require 'class'
+--creating class NN in Lua, using a torch class
+local class = require 'class'
 
 --init NN
-Neural_Network = class(function(net, inputs, hiddens, outputs)
-      net.inputLayerSize = inputs
-      net.hiddenLayerSize = hiddens
-      net.outputLayerSize = outputs
-      net.W1 = th.randn(net.inputLayerSize, net.hiddenLayerSize)
-      net.W2 = th.randn(net.hiddenLayerSize, net.outputLayerSize)
-   end)
+Neural_Network = class('Neural_Network')
+
+function Neural_Network:__init(inputs, hiddens, outputs)
+      self.inputLayerSize = inputs
+      self.hiddenLayerSize = hiddens
+      self.outputLayerSize = outputs
+      self.W1 = th.randn(self.inputLayerSize, self.hiddenLayerSize)
+      self.W2 = th.randn(self.hiddenLayerSize, self.outputLayerSize)
+end
 
 --define a forward method
 function Neural_Network:forward(X)
@@ -133,19 +135,11 @@ We'll use the optim package from the Torch framework, as it comes with
 several optimization methods and follow a specific API
 ]]--
 
-Trainer = class(function(tr, NN)
-      --Make Local reference to network:
-      tr.N = NN
-   end)
-
---[[
-With the torch class package
 Trainer = class('Trainer')
 function Trainer:__init(NN)
   --Make Local reference to network:
   self.N = NN
 end
---]]
 
 --Let's train!
 function Trainer:train(X, y)

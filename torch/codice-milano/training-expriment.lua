@@ -5,7 +5,7 @@ For each technique the training is performed from scratch and iterated a maximum
 Results of each training are logged in the respective log file (i.e. SGD.log, ADAM.log, ...)
 --]]
 
-require 'partSix'
+require '5_training'
 
 if not opt then
    print '==> processing options'

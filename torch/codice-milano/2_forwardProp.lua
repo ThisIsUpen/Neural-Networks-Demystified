@@ -27,20 +27,21 @@ normalizeTensorAlongCols(X)
 y = y/bestProfit
 
 ----------------------- Part 2 ----------------------------
---creating class NN in Lua, using a nice class utility
-require 'class'
+--creating class NN in Lua, using a torch class 
+local class = require 'class'
+
+Neural_Network = class('Neural_Network')
 
 --init NN
-Neural_Network = class(function(net, inputs, hiddens, outputs)
-      net.inputLayerSize = inputs
-      net.hiddenLayerSize = hiddens
-      net.outputLayerSize = outputs
-      net.W1 = th.randn(net.inputLayerSize, net.hiddenLayerSize)
-      net.W2 = th.randn(net.hiddenLayerSize, net.outputLayerSize)
-   end)
+function Neural_Network:__init(inputs, hiddens, outputs) 
+	self.inputLayerSize = inputs
+	self.hiddenLayerSize = hiddens
+	self.outputLayerSize = outputs
+	self.W1 = th.randn(self.inputLayerSize, self.hiddenLayerSize)
+	self.W2 = th.randn(self.hiddenLayerSize, self.ouputLayerSize)
+end
 
 --Note: I didn't implement manually the sigmoid function as Torch has one built-in.
-
 --define a forward method
 function Neural_Network:forward(X)
    --Propagate inputs though network
